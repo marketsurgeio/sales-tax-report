@@ -9,6 +9,7 @@ This project automates the process of tracking and reporting sales tax data, wit
 - Interactive visualization in Looker Studio
 - Embeddable charts in GoHighLevel
 - Automated scheduling and reporting
+- GitHub Actions for continuous integration and deployment
 
 ## Prerequisites
 
