@@ -2,12 +2,13 @@ name: Python CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, test-branch ]
   pull_request:
     branches: [ main ]
 
 jobs:
   test:
+    name: test (3.9)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -38,6 +39,7 @@ jobs:
         fail_ci_if_error: true
 
   lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -58,6 +60,7 @@ jobs:
         black . --check
 
   security:
+    name: security
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
