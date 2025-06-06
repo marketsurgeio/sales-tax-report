@@ -1,202 +1,127 @@
 # Sales Tax Report
 
-This application generates a sales tax report and displays it in a chart format for the last three months.
+This project automates the process of tracking and reporting sales tax data, with integration to Looker Studio for visualization and GoHighLevel for embedding.
 
 ## Features
 
-- Fetches invoice data from the HighLevel API
-- Calculates sales tax for each invoice
-- Displays a bar chart showing monthly sales tax for the last three months
-- Updates automatically via scheduled tasks
-- Provides an embeddable chart widget
-- Integrates with Looker Studio for enhanced visualization and reporting
+- Automated sales tax data collection from HighLevel API
+- Data processing and formatting in Google Sheets
+- Interactive visualization in Looker Studio
+- Embeddable charts in GoHighLevel
+- Automated scheduling and reporting
 
-## Looker Studio Integration
+## Prerequisites
 
-1. Set up Looker Studio:
-   - Go to [Looker Studio](https://lookerstudio.google.com/)
-   - Create a new report
-   - Click "Add data" and select "Google Sheets"
-   - Choose the same spreadsheet that's being updated by this application
+- Python 3.9+
+- Google Cloud Platform account with Sheets API enabled
+- HighLevel API access
+- GoHighLevel account
+- Looker Studio access
 
-2. Create your visualization:
-   - Add charts and graphs using the data from your Google Sheet
-   - Customize the design and layout to match your needs
-   - Set up automatic refresh to ensure data stays current
+## Installation
 
-3. Get the embeddable URL:
-   - Click "Share" in the top right
-   - Select "Embed report"
-   - Copy the provided iframe code
+1. Clone the repository:
+```bash
+git clone https://github.com/marketsurgeio/sales-tax-report.git
+cd sales-tax-report
+```
 
-4. Update your website:
-   - Replace the existing chart iframe with the Looker Studio embed code
-   - The Looker Studio report will automatically update when the Google Sheet is updated
+2. Create and activate a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
-## Setup
-
-1. Install dependencies:
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Set up environment variables in `.env`:
+4. Set up environment variables:
+Create a `.env` file with the following variables:
 ```
-HIGHLVL_API_KEY=your_api_key
 SPREADSHEET_ID=your_spreadsheet_id
+WORKSHEET_NAME=your_worksheet_name
+HIGHLEVEL_API_KEY=your_api_key
+HIGHLEVEL_SUBACCOUNT_ID=your_subaccount_id
 ```
 
-3. Configure Google Sheets API:
-- Place your `credentials.json` in the project directory
-- Run the application once to generate `token.pickle`
+## Usage
 
-## Running the Application
-
-1. Start the server:
+### Manual Run
 ```bash
-python serve.py
+python sales_tax_report.py
 ```
 
-2. View the chart:
-- Open http://localhost:8000/chart.html in your browser
-- The chart will display sales tax data for the last three months
+### Automated Scheduling
+The project includes a scheduler script that can be run as a service:
 
-3. Embed the chart:
-- Use the following iframe code in your website or application:
-```html
-<iframe 
-    src="http://localhost:8000/chart.html" 
-    width="100%" 
-    height="600" 
-    frameborder="0"
-    style="border: 1px solid #ccc;">
-</iframe>
-```
-
-## Server Management
-
-To ensure the servers stay running:
-
-1. Using `nohup` (recommended for development):
-```bash
-nohup python serve.py > serve.log 2>&1 &
-```
-
-2. Using `screen` (alternative method):
-```bash
-screen -S sales_tax_server
-python serve.py
-# Press Ctrl+A then D to detach
-# To reattach: screen -r sales_tax_server
-```
-
-3. Using `systemd` (recommended for production):
-```bash
-# Copy the service file
-sudo cp com.salestax.report.plist /Library/LaunchDaemons/
-
-# Load and start the service
-sudo launchctl load /Library/LaunchDaemons/com.salestax.report.plist
-```
-
-To check server status:
-```bash
-# Check if server is running
-ps aux | grep "python serve.py" | grep -v grep
-
-# View server logs
-tail -f serve.log
-```
-
-To restart the server:
-```bash
-# If using nohup
-pkill -f "python serve.py"
-nohup python serve.py > serve.log 2>&1 &
-
-# If using systemd
-sudo launchctl unload /Library/LaunchDaemons/com.salestax.report.plist
-sudo launchctl load /Library/LaunchDaemons/com.salestax.report.plist
-```
-
-## Port Usage Warning
-
-**Important:**
-- Do not use a port that is already in use by another process. The default is port 8000.
-- To check if port 8000 is in use:
-  ```bash
-  lsof -i :8000
-  ```
-- If it is, either kill the process using it:
-  ```bash
-  kill -9 <PID>
-  ```
-  or change the port used by the server.
-
-- To change the port, edit `serve.py` and modify the line:
-  ```python
-  app.run(port=8000)
-  # Change 8000 to another available port, e.g., 8080
-  ```
-- Update your iframe and browser URLs to match the new port.
-
-## Scheduling
-
-To run the report automatically:
-
-1. Make the scheduler script executable:
-```bash
-chmod +x start_scheduler.sh
-```
-
-2. Run the scheduler:
 ```bash
 ./start_scheduler.sh
 ```
 
-## Troubleshooting
+### Looker Studio Integration
+1. Connect to the Google Sheet containing the sales tax data
+2. Create a new report
+3. Use the following formula for monthly grouping:
+```
+CASE 
+  WHEN MONTH(Date) = 1 THEN CONCAT("January ", YEAR(Date))
+  WHEN MONTH(Date) = 2 THEN CONCAT("February ", YEAR(Date))
+  WHEN MONTH(Date) = 3 THEN CONCAT("March ", YEAR(Date))
+  WHEN MONTH(Date) = 4 THEN CONCAT("April ", YEAR(Date))
+  WHEN MONTH(Date) = 5 THEN CONCAT("May ", YEAR(Date))
+  WHEN MONTH(Date) = 6 THEN CONCAT("June ", YEAR(Date))
+  WHEN MONTH(Date) = 7 THEN CONCAT("July ", YEAR(Date))
+  WHEN MONTH(Date) = 8 THEN CONCAT("August ", YEAR(Date))
+  WHEN MONTH(Date) = 9 THEN CONCAT("September ", YEAR(Date))
+  WHEN MONTH(Date) = 10 THEN CONCAT("October ", YEAR(Date))
+  WHEN MONTH(Date) = 11 THEN CONCAT("November ", YEAR(Date))
+  WHEN MONTH(Date) = 12 THEN CONCAT("December ", YEAR(Date))
+END
+```
 
-- If the chart doesn't load, ensure the server is running (`python serve.py`)
-- If data isn't updating, check the scheduler logs
-- For API issues, verify your API key and credentials
-- If the server won't start, check if port 8000 is already in use:
-  ```bash
-  lsof -i :8000
-  # If port is in use, kill the process:
-  kill -9 <PID>
-  ```
-- If you change the port, update all references to the server URL accordingly.
+### GoHighLevel Integration
+1. Get the embed code from Looker Studio
+2. Add an HTML widget in GoHighLevel
+3. Paste the iframe code
+
+## Development
+
+### Project Structure
+```
+sales-tax-report/
+├── sales_tax_report.py    # Main script
+├── reformat_sheet.py      # Google Sheets formatting
+├── serve.py              # Local server for development
+├── auth_server.py        # Authentication handling
+├── requirements.txt      # Python dependencies
+└── start_scheduler.sh    # Scheduling script
+```
+
+### Running Tests
+```bash
+python -m pytest tests/
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## Security
+
+- Never commit sensitive files (token.pickle, credentials.json, .env)
+- Keep API keys secure
+- Use environment variables for sensitive data
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Support
 
-For issues or questions, please check the logs in:
-- `sales_tax_report.log`
-- `serve.log`
-- `auth_server.log`
-
-## Embedding the Report
-
-You have two options for embedding the report:
-
-1. Using Looker Studio (Recommended):
-```html
-<!-- Replace YOUR_REPORT_ID with your actual Looker Studio report ID -->
-<iframe 
-    src="https://lookerstudio.google.com/embed/reporting/YOUR_REPORT_ID/page/YOUR_PAGE_ID" 
-    width="100%" 
-    height="600" 
-    frameborder="0"
-    style="border: 1px solid #ccc;">
-</iframe>
-```
-
-2. Using the local server (Alternative):
-```html
-<iframe 
-    src="http://localhost:8000/chart.html" 
-    width="100%" 
-    height="600" 
-    frameborder="0"
-    style="border: 1px solid #ccc;">
-</iframe>
-``` 
+For support, please open an issue in the GitHub repository. 
