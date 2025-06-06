@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Logs
+*.log
+serve.log
+sales_tax_report.log
+auth_server.log
+
+# Credentials and tokens
+token.pickle
+token.json
+credentials.json
+.env
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+last_run.txt
+chart_data.json 
